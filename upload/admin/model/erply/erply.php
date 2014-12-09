@@ -35,6 +35,27 @@ class ModelErplyErply extends Model
         return $response->records[0];
     }
 
+    public function getStockInfo($warehouseID = 1, $productID = null)
+    {
+        $api = $this->getAPI();
+        $response = $api->invoke('getProductStock', array(
+            'productID' => $productID,
+            'warehouseID' => $warehouseID,
+            'getAmountReserved' => 1,
+        ));
+        return $productID !== null ? $response->records[0] : $response->records;
+    }
+
+
+    public function getPriceList($priceListID)
+    {
+        $api = $this->getAPI();
+        $response = $api->invoke('getPriceLists', array(
+            'pricelistID' => $priceListID,
+            'getPricesWithVAT' => 1
+        ));
+        return $response->records[0];
+    }
 
     private function getAPI()
     {
