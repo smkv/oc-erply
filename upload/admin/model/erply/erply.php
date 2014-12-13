@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Class ModelErplyErply
+ * @property ModelSettingSetting model_setting_setting
+ */
 class ModelErplyErply extends Model
 {
 
@@ -63,10 +67,10 @@ class ModelErplyErply extends Model
         $this->load->model('setting/setting');
         $setting = $this->model_setting_setting->getSetting('erply');
 
-        $url = $setting['url'];
-        $client = $setting['client'];
-        $username = $setting['username'];
-        $password = $setting['password'];
+        $url = $setting['erply_url'];
+        $client = $setting['erply_client'];
+        $username = $setting['erply_username'];
+        $password = $setting['erply_password'];
         return new EAPI($url, $client, $username, $password);
     }
 }
