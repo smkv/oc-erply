@@ -19,6 +19,7 @@ class ModelErplyErply extends Model
         do {
             $this->debug("Loading all products from Eply page nr $page");
             $response = $api->invoke('getProducts', array(
+                'displayedInWebshop' => 1,
                 'recordsOnPage' => 1000,
                 'pageNo' => $page++
             ));

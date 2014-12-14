@@ -28,6 +28,7 @@
                         <tr>
                             <th>Erply Product ID</th>
                             <th>Erply ProductName</th>
+                            <th>Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -36,11 +37,17 @@
                         <tr>
                             <td><?=$product['erply_product_id']?></td>
                             <td><?=$product['erply_product_name']?></td>
+                            <td>
+                                <form action="<?=$product['add_action']?>" method="post">
+                                    <input type="hidden" name="erply_product_id" value="<?=$product['erply_product_id']?>">
+                                    <button class="btn btn-success">Add & Edit</button>
+                                </form>
+                            </td>
                         </tr>
                         <?php } ?>
                         <?php } else { ?>
                         <tr>
-                            <td class="text-center" colspan="2"><?php echo $text_no_results; ?></td>
+                            <td class="text-center" colspan="3"><?php echo $text_no_results; ?></td>
                         </tr>
                         <?php } ?>
                         </tbody>

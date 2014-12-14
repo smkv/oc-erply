@@ -21,9 +21,11 @@ class ModelErplyQueue extends Model{
         return $query->row;
     }
 
-    public function add($id , $name){
-        $this->db->query("INSERT INTO  product_queue (erply_product_id , erply_product_name) VALUES('".$this->db->escape($id)."','".$this->db->escape($name)."')");
+    public function add($erply_product_id , $name){
+        $this->db->query("INSERT INTO  product_queue (erply_product_id , erply_product_name) VALUES('".$this->db->escape($erply_product_id)."','".$this->db->escape($name)."')");
         return $this->db->getLastId();
     }
-
+    public function remove($erply_product_id){
+        $this->db->query("DELETE FROM  product_queue WHERE erply_product_id = '".$this->db->escape($erply_product_id)."'");
+    }
 }
