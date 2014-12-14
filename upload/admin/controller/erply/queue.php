@@ -5,6 +5,7 @@
  * @property ModelErplyErply model_erply_erply
  * @property ModelErplyProduct model_erply_product
  * @property ModelCatalogProduct model_catalog_product
+ * @property Request request
  */
 class ControllerErplyQueue extends Controller
 {
@@ -15,9 +16,11 @@ class ControllerErplyQueue extends Controller
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('erply/queue');
+        $page = isset($this->request->get['page'])? min(1 ,intval($this->request->get['page'])): 1;
+        $start= ($page - 1) * $this->config->get('config_limit_admin');
+		$limit = $this->config->get('config_limit_admin');
 
-
-        $queue = $this->model_erply_queue->getQueue();
+        $queue = $this->model_erply_queue->getQueue($start, $limit);
 
         $data['heading_title'] = $this->language->get('heading_title');
         $data['text_list'] = $this->language->get('text_list');
@@ -25,8 +28,8 @@ class ControllerErplyQueue extends Controller
         $data['queue'] = $queue;
 
 
-        $page = 1;
-        $product_total = count($queue);
+
+        $product_total = $this->model_erply_queue->getQueueSize();
         $pagination = new Pagination();
         $pagination->total = $product_total;
         $pagination->page =$page;

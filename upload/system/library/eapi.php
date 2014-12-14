@@ -23,6 +23,7 @@ class EAPI
 
     public function invoke($request, $parameters = array())
     {
+        //$this->debug("invoke $request $this Parameters<pre>".print_r($parameters,true)."</pre>");
         //validate that all required parameters are set
         if(!$this->url OR !$this->clientCode OR !$this->username OR !$this->password){
             throw new Exception('Missing parameters', self::MISSING_PARAMETERS);
@@ -34,6 +35,7 @@ class EAPI
         $parameters['version'] = '1.0';
         if($request != "verifyUser") $parameters['sessionKey'] = $this->getSessionKey();
 
+        $this->debug("Preparing request to {$this->url} with params<br /><pre>".print_r($parameters,true)."</pre>");
         //create request
         $handle = curl_init($this->url);
 
@@ -68,6 +70,8 @@ class EAPI
 
         $response = json_decode($response);
 
+        $this->debug("Response status<br /><pre>".print_r($response->status,true)."</pre>");
+
         $this->throwExceptionIfNecessary($parameters , $response);
 
         return $response;
@@ -75,6 +79,7 @@ class EAPI
 
     protected function getSessionKey()
     {
+        $this->debug("Getting session key");
         //test for session
         if(!isset($_SESSION)) throw new Exception('PHP session not started', self::PHP_SESSION_NOT_STARTED);
 
@@ -84,12 +89,13 @@ class EAPI
             !isset($_SESSION['EAPISessionKeyExpires'][$this->clientCode][$this->username]) ||
             $_SESSION['EAPISessionKeyExpires'][$this->clientCode][$this->username] < time()
         ) {
+            $this->debug("Making request for new session key");
             //make request
-            $result = $this->sendRequest("verifyUser", array("username" => $this->username, "password" => $this->password));
-            $response = json_decode($result, true);
+            $response = $this->invoke("verifyUser", array("username" => $this->username, "password" => $this->password));
+
 
             //check failure
-            if(!isset($response['records'][0]['sessionKey'])) {
+            if(!isset($response->records[0]->sessionKey)) {
                 unset($_SESSION['EAPISessionKey'][$this->clientCode][$this->username]);
                 unset($_SESSION['EAPISessionKeyExpires'][$this->clientCode][$this->username]);
 
@@ -99,13 +105,15 @@ class EAPI
             }
 
             //cache the key in PHP session
-            $_SESSION['EAPISessionKey'][$this->clientCode][$this->username] = $response['records'][0]['sessionKey'];
-            $_SESSION['EAPISessionKeyExpires'][$this->clientCode][$this->username] = time() + $response['records'][0]['sessionLength'] - 30;
+            $_SESSION['EAPISessionKey'][$this->clientCode][$this->username] = $response->records[0]->sessionKey;
+            $_SESSION['EAPISessionKeyExpires'][$this->clientCode][$this->username] = time() + $response->records[0]->sessionLength - 30;
 
         }
 
         //return cached key
-        return $_SESSION['EAPISessionKey'][$this->clientCode][$this->username];
+        $key = $_SESSION['EAPISessionKey'][$this->clientCode][$this->username];
+        $this->debug("Session key is $key");
+        return $key;
     }
 
 
@@ -184,4 +192,16 @@ class EAPI
         }
 
     }
+
+
+    private function debug($s){
+       // echo "<p><strong>EAPI:</strong> $s</p>\n";
+    }
+
+    function __toString()
+    {
+        return print_r($this , true);
+    }
+
+
 }

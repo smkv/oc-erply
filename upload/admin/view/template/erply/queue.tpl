@@ -34,8 +34,8 @@
                         <?php if ($queue) { ?>
                         <?php foreach ($queue as $product) { ?>
                         <tr>
-                            <td><?=$queue['erply_product_id']?></td>
-                            <td><?=$queue['erply_product_name']?></td>
+                            <td><?=$product['erply_product_id']?></td>
+                            <td><?=$product['erply_product_name']?></td>
                         </tr>
                         <?php } ?>
                         <?php } else { ?>

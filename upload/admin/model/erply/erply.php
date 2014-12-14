@@ -3,6 +3,7 @@
 /**
  * Class ModelErplyErply
  * @property ModelSettingSetting model_setting_setting
+ * @property Loader load
  */
 class ModelErplyErply extends Model
 {
@@ -10,18 +11,22 @@ class ModelErplyErply extends Model
 
     public function getAllProducts()
     {
+
         $products = array();
         $api = $this->getAPI();
-
+        $this->debug("Loading all products from Eply ");
         $page = 1;
         do {
+            $this->debug("Loading all products from Eply page nr $page");
             $response = $api->invoke('getProducts', array(
                 'recordsOnPage' => 1000,
                 'pageNo' => $page++
             ));
+            $this->debug("Loaded page $page " . print_r($response->status , true));
             $products = array_merge($products, $response->records);
         } while ($response->status->recordsTotal > count($products));
 
+        $this->debug("Loaded " . count($products). " products");
         return $products;
     }
 
@@ -63,14 +68,22 @@ class ModelErplyErply extends Model
 
     private function getAPI()
     {
+        $this->debug("Loading Erply library");
         $this->load->library('eapi');
+        $this->debug("Loading setting model");
         $this->load->model('setting/setting');
+        $this->debug("Getting erply settings");
         $setting = $this->model_setting_setting->getSetting('erply');
 
         $url = $setting['erply_url'];
         $client = $setting['erply_client'];
         $username = $setting['erply_username'];
         $password = $setting['erply_password'];
+        $this->debug("Init new API $url, $client, $username, $password");
         return new EAPI($url, $client, $username, $password);
+    }
+
+    private function debug($s){
+        //echo "<p><strong>ModelErplyErply:</strong> $s</p>\n";
     }
 }
