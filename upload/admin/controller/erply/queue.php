@@ -158,7 +158,21 @@ class ControllerErplyQueue extends Controller
         $product['tax_class_id'] = 9;
         $product['sort_order'] = '';
         $product['product_store'] = 0;
-        $product['image'] = ''; //todo  get image
+
+        if(!empty($erplyProduct->images)){
+
+            $product['image'] = $this->storeImage('erply',$erplyProduct->images[0]->fullURL);
+            $product['product_image']= array();
+            foreach($erplyProduct->images as $image){
+                $product['product_image'][] = array(
+                    'image'=>$image->fullURL,
+                    'sort_order'=>0
+                );
+            }
+        }else{
+            $product['image'] = null;
+        }
+
         $product['product_description'] = array(
             1 => array(
                 'name' => $erplyProduct->name,
@@ -183,5 +197,16 @@ class ControllerErplyQueue extends Controller
             $quantity += intval($warehouse->free);
         }
         return $quantity;
+    }
+
+    private function storeImage($path , $imageURL){
+        $fileName = end(explode('/',$imageURL));
+        $destination = DIR_IMAGE.'catalog/'.$path;
+        if(!file_exists($destination)){
+            mkdir($destination, 0777,true);
+        }
+        $content = file_get_contents($imageURL);
+        file_put_contents($destination .'/' .$fileName, $content);
+        return $destination .'/' .$fileName;
     }
 }
