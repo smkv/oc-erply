@@ -19,7 +19,7 @@ class ControllerErplyQueue extends Controller
         $this->document->setTitle($this->language->get('heading_title'));
 
         $this->load->model('erply/queue');
-        $page = isset($this->request->get['page']) ? min(1, intval($this->request->get['page'])) : 1;
+        $page = isset($this->request->get['page']) ? max(1, intval($this->request->get['page'])) : 1;
         $start = ($page - 1) * $this->config->get('config_limit_admin');
         $limit = $this->config->get('config_limit_admin');
 
@@ -63,6 +63,8 @@ class ControllerErplyQueue extends Controller
             'text' => $this->language->get('heading_title'),
             'href' => $this->url->link('erply/queue', 'token=' . $this->session->data['token'], 'SSL')
         );
+
+        $data['check_new'] = $this->url->link('erply/queue/check_new', 'token=' . $this->session->data['token'], 'SSL');
 
 
         $data['header'] = $this->load->controller('common/header');
@@ -157,15 +159,15 @@ class ControllerErplyQueue extends Controller
         $product['status'] = 1;
         $product['tax_class_id'] = 9;
         $product['sort_order'] = '';
-        $product['product_store'] = 0;
+        $product['product_store'] = array(0);
 
         if(!empty($erplyProduct->images)){
 
-            $product['image'] = $this->storeImage('erply',$erplyProduct->images[0]->fullURL);
+            $product['image'] = $this->storeImage('erply',$erplyProduct->images[0]->largeURL);
             $product['product_image']= array();
-            foreach($erplyProduct->images as $image){
+            foreach(array_shift($erplyProduct->images) as $image){
                 $product['product_image'][] = array(
-                    'image'=>$image->fullURL,
+                    'image'=>$this->storeImage('erply',$image->largeURL),
                     'sort_order'=>0
                 );
             }
@@ -176,8 +178,10 @@ class ControllerErplyQueue extends Controller
         $product['product_description'] = array(
             1 => array(
                 'name' => $erplyProduct->name,
+                'meta_title' => $erplyProduct->name,
                 'description' => $erplyProduct->description,
-                'tag' => $erplyProduct->brandName . ', ' . $erplyProduct->groupName . ', ' . $erplyProduct->categoryName . ', ' . $erplyProduct->seriesName,
+                'tag' => $this->getTags($erplyProduct),
+                'meta_keyword' => $this->getTags($erplyProduct),
             )
         );
 
@@ -207,6 +211,22 @@ class ControllerErplyQueue extends Controller
         }
         $content = file_get_contents($imageURL);
         file_put_contents($destination .'/' .$fileName, $content);
-        return $destination .'/' .$fileName;
+        return 'catalog/'.$path .'/' .$fileName;
+    }
+
+    /**
+     * @param $erplyProduct
+     * @return string
+     */
+    private function getTags($erplyProduct)
+    {
+        $tags = array(
+            $erplyProduct->brandName,
+            $erplyProduct->groupName,
+            $erplyProduct->categoryName,
+            $erplyProduct->seriesName
+        );
+        $tags = array_filter($tags , function($item){ return !empty($item);});
+        return implode(', ', $tags);
     }
 }

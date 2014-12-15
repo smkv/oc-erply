@@ -19,6 +19,9 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
+            <div class="pull-right">
+                <a class="btn btn-danger btn-sm" href="<?php echo $check_new;?>" >Check new products</a>
+            </div>
             <h3 class="panel-title"><i class="fa fa-list"></i> <?php echo $text_list; ?></h3>
         </div>
         <div class="panel-body">

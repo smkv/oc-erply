@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Opencart Erply</name>
+    <version>1.0</version>
+    <code>opencart-erply</code>
+    <author>Andrei Samkov</author>
+    <link>https://plus.google.com/+AndreiSamkov</link>
+    <file path="admin/view/template/common/menu.tpl">
+        <operation>
+            <search regex="false" trim="true"><![CDATA[
+            <li><a href="<?php echo $feed; ?>"><?php echo $text_feed; ?></a></li>
+            ]]></search>
+            <add position="after"><![CDATA[
+            <li><a href="<?php echo $erply; ?>">Erply Product queue</a></li>
+            ]]></add>
+        </operation>
+    </file>
+    <file path="admin/controller/common/menu.php">
+        <operation>
+            <search regex="false" trim="true"><![CDATA[
+            $data['feed'] = $this->url->link('extension/feed', 'token=' . $this->session->data['token'], 'SSL');
+            ]]></search>
+            <add position="after"><![CDATA[
+            $data['erply'] = $this->url->link('erply/queue', 'token=' . $this->session->data['token'], 'SSL');
+            ]]></add>
+        </operation>
+    </file>
+
+</modification>
