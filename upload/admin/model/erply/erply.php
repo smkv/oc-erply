@@ -91,4 +91,20 @@ class ModelErplyErply extends Model
     private function debug($s){
         //echo "<p><strong>ModelErplyErply:</strong> $s</p>\n";
     }
+
+    public function deletePictures($productID){
+        $api = $this->getAPI();
+        $api->invoke('deleteProductPicture', array(
+            'productID' => $productID
+        ));
+    }
+
+    public function addPicture($productID , $picture){
+        $imageData = file_get_contents($picture);
+        $api = $this->getAPI();
+        $api->invoke('saveProductPicture', array(
+            'productID' => $productID,
+            'picture' => base64_encode($imageData),
+        ));
+    }
 }

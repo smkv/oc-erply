@@ -283,7 +283,19 @@ class ControllerErplyQueue extends Controller
             $data["description$l"] = $productDescription['description'];
         }
 
+
+
         $this->model_erply_erply->saveProduct($data);
+
+        $this->model_erply_erply->deletePictures($product['sku']);
+        $this->model_erply_erply->addPicture($product['sku'], DIR_IMAGE . $product['image']);
+
+        $productImages = $this->model_catalog_product->getProductImages($productId);
+        foreach ($productImages as $productImage) {
+            $this->model_erply_erply->addPicture($product['sku'], DIR_IMAGE . $productImage['image']);
+        }
+
+
     }
 
     /**
