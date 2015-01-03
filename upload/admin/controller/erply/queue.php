@@ -34,10 +34,12 @@ class ControllerErplyQueue extends Controller
         foreach ($queue as $item) {
             $data['queue'][] = array(
                 'erply_product_id' => $item['erply_product_id'],
+                'erply_product_ean' => $item['erply_product_ean'],
                 'erply_product_name' => $item['erply_product_name'],
                 'erply_product_group' => $item['erply_product_group'],
                 'erply_product_seria' => $item['erply_product_seria'],
                 'add_action' => $this->url->link('erply/queue/add_product', 'token=' . $this->session->data['token'], 'SSL'),
+                'skip_action' => $this->url->link('erply/queue/skip_product', 'token=' . $this->session->data['token'], 'SSL'),
             );
         }
 
@@ -93,7 +95,7 @@ class ControllerErplyQueue extends Controller
             if (!$q) {
                 $p = $this->model_erply_product->getProductBySKU($product->productID);
                 if (!$p) {
-                    $this->model_erply_queue->add($product->productID, $product->name, $product->groupName, $product->seriesName);
+                    $this->model_erply_queue->add($product->productID, $product->code2 ,$product->name, $product->groupName, $product->seriesName);
                 }
             }
         }
@@ -103,6 +105,12 @@ class ControllerErplyQueue extends Controller
         $this->index();
     }
 
+    public function skip_product(){
+        $this->load->model('erply/queue');
+        $erplyProductId = $this->request->post['erply_product_id'];
+        $this->model_erply_queue->remove($erplyProductId);
+        $this->index();
+    }
     public function add_product()
     {
         $this->load->model('erply/queue');
@@ -125,6 +133,7 @@ class ControllerErplyQueue extends Controller
         $product['ean'] = $erplyProduct->code2;
         $product['sku'] = $erplyProduct->productID;
         $product['upc'] = '';
+        $product['mpn'] = '';
         $product['jan'] = '';
         $product['isbn'] = '';
         $product['location'] = '';
@@ -153,7 +162,7 @@ class ControllerErplyQueue extends Controller
         }
         $product['shipping'] = 1;
         $product['points'] = 0;
-        $product['price'] = $erplyProduct->priceWithVat;
+        $product['price'] = $erplyProduct->price;
 
         $product['weight'] = $erplyProduct->grossWeight;
         $product['weight_class_id'] = 1;
@@ -288,7 +297,9 @@ class ControllerErplyQueue extends Controller
         $this->model_erply_erply->saveProduct($data);
 
         $this->model_erply_erply->deletePictures($product['sku']);
-        $this->model_erply_erply->addPicture($product['sku'], DIR_IMAGE . $product['image']);
+        if (!empty($product['image'])) {
+            $this->model_erply_erply->addPicture($product['sku'], DIR_IMAGE . $product['image']);
+        }
 
         $productImages = $this->model_catalog_product->getProductImages($productId);
         foreach ($productImages as $productImage) {
