@@ -9,6 +9,11 @@ class ModelErplyErply extends Model
 {
 
 
+    public function saveProduct($data){
+        $api = $this->getAPI();
+        $api->invoke('saveProduct' , $data);
+    }
+
     public function getAllProducts()
     {
 

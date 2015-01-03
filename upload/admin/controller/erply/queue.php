@@ -35,6 +35,8 @@ class ControllerErplyQueue extends Controller
             $data['queue'][] = array(
                 'erply_product_id' => $item['erply_product_id'],
                 'erply_product_name' => $item['erply_product_name'],
+                'erply_product_group' => $item['erply_product_group'],
+                'erply_product_seria' => $item['erply_product_seria'],
                 'add_action' => $this->url->link('erply/queue/add_product', 'token=' . $this->session->data['token'], 'SSL'),
             );
         }
@@ -91,7 +93,7 @@ class ControllerErplyQueue extends Controller
             if (!$q) {
                 $p = $this->model_erply_product->getProductBySKU($product->productID);
                 if (!$p) {
-                    $this->model_erply_queue->add($product->productID, $product->name);
+                    $this->model_erply_queue->add($product->productID, $product->name, $product->groupName, $product->seriesName);
                 }
             }
         }
@@ -181,17 +183,7 @@ class ControllerErplyQueue extends Controller
         $product['product_description'] = array();
         $languages = $this->model_localisation_language->getLanguages();
 
-        $languageCodeMapping = array(
-            'en'=>'ENG',
-            'es'=>'SPA',
-            'de'=>'DER',
-            'se'=>'SWE',
-            'fi'=>'FIN',
-            'et'=>'EST',
-            'lv'=>'LAT',
-            'lt'=>'LIT',
-            'gr'=>'GRE',
-        );
+        $languageCodeMapping = $this->getLanguageMapping();
 
         foreach ($languages as $language) {
             $lid = $language['language_id'];
@@ -255,5 +247,56 @@ class ControllerErplyQueue extends Controller
                 return !empty($item);
             });
         return implode(', ', $tags);
+    }
+
+
+    public function sync_back($productId){
+        $this->load->model('erply/erply');
+        $this->load->model('catalog/product');
+        $this->load->model('catalog/manufacturer');
+        $this->load->model('localisation/language');
+
+        $product = $this->model_catalog_product->getProduct($productId);
+
+        $data = array();
+
+        $data['productID']= $product['sku'];
+        $data['code']= $product['model'];
+        $data['code2']= $product['ean'];
+
+        $languageCodeMapping = $this->getLanguageMapping();
+        $languages = $this->model_localisation_language->getLanguages();
+
+        $productDescriptions = $this->model_catalog_product->getProductDescriptions($productId);
+
+        foreach ($languages as $language) {
+            $lid = $language['language_id'];
+            $l = $languageCodeMapping[$language['code']];
+            $productDescription = $productDescriptions[ $lid];
+
+            $data["name$l"] = $productDescription['name'];
+            $data["description$l"] = $productDescription['description'];
+        }
+
+        $this->model_erply_erply->saveProduct($data);
+    }
+
+    /**
+     * @return array
+     */
+    private function getLanguageMapping()
+    {
+        $languageCodeMapping = array(
+            'en' => 'ENG',
+            'es' => 'SPA',
+            'de' => 'DER',
+            'se' => 'SWE',
+            'fi' => 'FIN',
+            'et' => 'EST',
+            'lv' => 'LAT',
+            'lt' => 'LIT',
+            'gr' => 'GRE',
+        );
+        return $languageCodeMapping;
     }
 }

@@ -29,8 +29,10 @@
                     <table class="table table-bordered table-hover">
                         <thead>
                         <tr>
-                            <th>Erply Product ID</th>
-                            <th>Erply ProductName</th>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Group</th>
+                            <th>Seria</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -40,6 +42,8 @@
                         <tr>
                             <td><?=$product['erply_product_id']?></td>
                             <td><?=$product['erply_product_name']?></td>
+                            <td><?=$product['erply_product_group']?></td>
+                            <td><?=$product['erply_product_seria']?></td>
                             <td>
                                 <form action="<?=$product['add_action']?>" method="post">
                                     <input type="hidden" name="erply_product_id" value="<?=$product['erply_product_id']?>">
