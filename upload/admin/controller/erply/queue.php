@@ -87,9 +87,8 @@ class ControllerErplyQueue extends Controller
         $this->load->model('erply/erply');
         $this->load->model('erply/product');
 
-        echo "Loaded models\n";
         $allProducts = $this->model_erply_erply->getAllProducts();
-        echo "Loaded all products \n";
+
         foreach ($allProducts as $product) {
             $q = $this->model_erply_queue->getByErplyProdyctId($product->productID);
             if (!$q) {
