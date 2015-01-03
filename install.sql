@@ -8,4 +8,4 @@ CREATE TABLE IF NOT EXISTS product_queue (
 );
 
 
-INSERT INTO oc_event (code, `trigger`, action) VALUES ('erply_back_sync' , 'post.admin.product.edit','controller/erply/queue/sync_back');
+INSERT INTO oc_event (code, `trigger`, action) VALUES ('erply_back_sync' , 'post.admin.product.edit','erply/queue/sync_back');

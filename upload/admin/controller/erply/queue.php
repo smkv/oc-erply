@@ -197,6 +197,7 @@ class ControllerErplyQueue extends Controller
                 'name' => $name,
                 'meta_title' => $name,
                 'description' => $desc,
+                'meta_description' => $desc,
                 'tag' => $this->getTags($erplyProduct),
                 'meta_keyword' => $this->getTags($erplyProduct),
             );
@@ -258,6 +259,10 @@ class ControllerErplyQueue extends Controller
 
         $product = $this->model_catalog_product->getProduct($productId);
 
+        if(empty($product['sku'])){
+            return;
+        }
+
         $data = array();
 
         $data['productID']= $product['sku'];
@@ -287,6 +292,7 @@ class ControllerErplyQueue extends Controller
     private function getLanguageMapping()
     {
         $languageCodeMapping = array(
+            'ru' => 'RUS',
             'en' => 'ENG',
             'es' => 'SPA',
             'de' => 'DER',
