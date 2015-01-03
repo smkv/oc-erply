@@ -6,6 +6,7 @@
  * @property ModelErplyProduct model_erply_product
  * @property ModelCatalogProduct model_catalog_product
  * @property ModelCatalogManufacturer model_catalog_manufacturer
+ * @property ModelLocalisationLanguage model_localisation_language
  * @property Request request
  * @property Response response
  * @property Url url
@@ -106,6 +107,7 @@ class ControllerErplyQueue extends Controller
         $this->load->model('erply/erply');
         $this->load->model('catalog/product');
         $this->load->model('catalog/manufacturer');
+        $this->load->model('localisation/language');
 
         $erplyProductId = $this->request->post['erply_product_id'];
 
@@ -118,6 +120,7 @@ class ControllerErplyQueue extends Controller
 
         $product = array();
         $product['model'] = $erplyProduct->code;
+        $product['ean'] = $erplyProduct->code2;
         $product['sku'] = $erplyProduct->productID;
         $product['upc'] = '';
         $product['jan'] = '';
@@ -148,8 +151,8 @@ class ControllerErplyQueue extends Controller
         }
         $product['shipping'] = 1;
         $product['points'] = 0;
-        $product['price'] = $erplyProduct->priceListPriceWithVat;
-        $product['ean'] = $erplyProduct->code2;
+        $product['price'] = $erplyProduct->priceWithVat;
+
         $product['weight'] = $erplyProduct->grossWeight;
         $product['weight_class_id'] = 1;
         $product['length'] = $erplyProduct->length;
@@ -161,31 +164,51 @@ class ControllerErplyQueue extends Controller
         $product['sort_order'] = '';
         $product['product_store'] = array(0);
 
-        if(!empty($erplyProduct->images)){
+        if (!empty($erplyProduct->images)) {
 
-            $product['image'] = $this->storeImage('erply',$erplyProduct->images[0]->largeURL);
-            $product['product_image']= array();
-            foreach(array_shift($erplyProduct->images) as $image){
+            $product['image'] = $this->storeImage('erply', $erplyProduct->images[0]->largeURL);
+            $product['product_image'] = array();
+            foreach (array_shift($erplyProduct->images) as $image) {
                 $product['product_image'][] = array(
-                    'image'=>$this->storeImage('erply',$image->largeURL),
-                    'sort_order'=>0
+                    'image' => $this->storeImage('erply', $image->largeURL),
+                    'sort_order' => 0
                 );
             }
-        }else{
+        } else {
             $product['image'] = null;
         }
 
-        $product['product_description'] = array(
-            1 => array(
-                'name' => $erplyProduct->name,
-                'meta_title' => $erplyProduct->name,
-                'description' => $erplyProduct->description,
-                'tag' => $this->getTags($erplyProduct),
-                'meta_keyword' => $this->getTags($erplyProduct),
-            )
+        $product['product_description'] = array();
+        $languages = $this->model_localisation_language->getLanguages();
+
+        $languageCodeMapping = array(
+            'en'=>'ENG',
+            'es'=>'SPA',
+            'de'=>'DER',
+            'se'=>'SWE',
+            'fi'=>'FIN',
+            'et'=>'EST',
+            'lv'=>'LAT',
+            'lt'=>'LIT',
+            'gr'=>'GRE',
         );
 
-        $product['product_image'] = array();
+        foreach ($languages as $language) {
+            $lid = $language['language_id'];
+            $l = $languageCodeMapping[$language['code']];
+            $nameField = "name$l";
+            $name = isset($erplyProduct->$nameField) ? $erplyProduct->$nameField: $erplyProduct->name;
+            $descField = "description$l";
+            $desc = isset($erplyProduct->$descField) ? $erplyProduct->$descField: $erplyProduct->description;
+
+            $product['product_description'][$lid] = array(
+                'name' => $name,
+                'meta_title' => $name,
+                'description' => $desc,
+                'tag' => $this->getTags($erplyProduct),
+                'meta_keyword' => $this->getTags($erplyProduct),
+            );
+        }
 
 
         $product_id = $this->model_catalog_product->addProduct($product);
@@ -195,23 +218,25 @@ class ControllerErplyQueue extends Controller
 
     }
 
-    private function getFreeQuantity($warehouses){
+    private function getFreeQuantity($warehouses)
+    {
         $quantity = 0;
-        foreach($warehouses as $warehouse){
+        foreach ($warehouses as $warehouse) {
             $quantity += intval($warehouse->free);
         }
         return $quantity;
     }
 
-    private function storeImage($path , $imageURL){
-        $fileName = end(explode('/',$imageURL));
-        $destination = DIR_IMAGE.'catalog/'.$path;
-        if(!file_exists($destination)){
-            mkdir($destination, 0777,true);
+    private function storeImage($path, $imageURL)
+    {
+        $fileName = end(explode('/', $imageURL));
+        $destination = DIR_IMAGE . 'catalog/' . $path;
+        if (!file_exists($destination)) {
+            mkdir($destination, 0777, true);
         }
         $content = file_get_contents($imageURL);
-        file_put_contents($destination .'/' .$fileName, $content);
-        return 'catalog/'.$path .'/' .$fileName;
+        file_put_contents($destination . '/' . $fileName, $content);
+        return 'catalog/' . $path . '/' . $fileName;
     }
 
     /**
@@ -226,7 +251,9 @@ class ControllerErplyQueue extends Controller
             $erplyProduct->categoryName,
             $erplyProduct->seriesName
         );
-        $tags = array_filter($tags , function($item){ return !empty($item);});
+        $tags = array_filter($tags, function ($item) {
+                return !empty($item);
+            });
         return implode(', ', $tags);
     }
 }

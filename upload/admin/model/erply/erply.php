@@ -31,14 +31,13 @@ class ModelErplyErply extends Model
         return $products;
     }
 
-    public function getProduct($id, $getStockInfo = 1, $getFIFOCost = 1, $getPriceListPrices = 1, $getRelatedProducts = 1)
+    public function getProduct($id, $getStockInfo = 1, $getFIFOCost = 1, $getRelatedProducts = 1)
     {
         $api = $this->getAPI();
         $response = $api->invoke('getProducts', array(
             'productID' => $id,
             'getStockInfo' => $getStockInfo,
             'getFIFOCost' => $getFIFOCost,
-            'getPriceListPrice' => $getPriceListPrices,
             'getRelatedProduct' => $getRelatedProducts,
         ));
 
