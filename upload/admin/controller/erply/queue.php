@@ -49,7 +49,7 @@ class ControllerErplyQueue extends Controller
         }
 
 
-        $product_total = $this->model_erply_queue->getQueueSize();
+        $product_total = $this->model_erply_queue->getQueueSize($filter);
         $pagination = new Pagination();
         $pagination->total = $product_total;
         $pagination->page = $page;
