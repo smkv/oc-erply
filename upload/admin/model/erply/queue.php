@@ -6,8 +6,30 @@
  */
 class ModelErplyQueue extends Model{
 
-    public function getQueue($start , $limit){
-        $query = $this->db->query("SELECT * FROM product_queue p  ORDER BY p.id ASC LIMIT $start , $limit");
+    public function getQueue($start , $limit ,$filter = null){
+        $where = "";
+        if(!empty($filter)){
+            if(is_numeric($filter)){
+                $filter = intval($filter);
+                $where = "WHERE  p.erply_product_id = $filter OR p.erply_product_ean = '$filter'";
+            }else{
+                $filter = explode(' ' , trim($filter));
+                $fields = array("erply_product_ean","erply_product_name","erply_product_group" , "erply_product_seria");
+
+                $tmp = array();
+                foreach($fields as $field){
+                    $tmp2 = array();
+                    foreach($filter as $value) {
+                        $value= $this->db->escape($value);
+                        $tmp2[] = "p.$field LIKE '%$value%'";
+                    }
+                    $tmp[] = implode(' AND ' , $tmp2);
+                }
+                $where = "WHERE (" . implode(') OR (' , $tmp) .")";
+            }
+        }
+
+        $query = $this->db->query("SELECT * FROM product_queue p $where  ORDER BY p.id ASC LIMIT $start , $limit");
         return $query->rows;
     }
 

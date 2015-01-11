@@ -21,14 +21,19 @@ class ControllerErplyQueue extends Controller
 
         $this->load->model('erply/queue');
         $page = isset($this->request->get['page']) ? max(1, intval($this->request->get['page'])) : 1;
+        $filter = isset($this->request->get['filter']) ?$this->request->get['filter'] : "";
         $start = ($page - 1) * $this->config->get('config_limit_admin');
         $limit = $this->config->get('config_limit_admin');
 
-        $queue = $this->model_erply_queue->getQueue($start, $limit);
+        $queue = $this->model_erply_queue->getQueue($start, $limit, $filter);
 
         $data['heading_title'] = $this->language->get('heading_title');
         $data['text_list'] = $this->language->get('text_list');
         $data['text_no_results'] = $this->language->get('text_no_results');
+
+        $data['filter'] = $filter;
+        $data['token'] = $this->session->data['token'];
+        $data['filter_action'] =  $this->url->link('erply/queue', 'token=' . $this->session->data['token'], 'SSL');
 
         $data['queue'] = array();
         foreach ($queue as $item) {
@@ -49,7 +54,7 @@ class ControllerErplyQueue extends Controller
         $pagination->total = $product_total;
         $pagination->page = $page;
         $pagination->limit = $this->config->get('config_limit_admin');
-        $pagination->url = $this->url->link('erply/queue', 'token=' . $this->session->data['token'] . '&page={page}', 'SSL');
+        $pagination->url = $this->url->link('erply/queue', 'token=' . $this->session->data['token'] . '&page={page}&filter='.$filter, 'SSL');
 
         $data['pagination'] = $pagination->render();
 

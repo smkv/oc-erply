@@ -22,6 +22,18 @@
             <h3 class="panel-title"><i class="fa fa-list"></i> <?php echo $text_list; ?></h3>
         </div>
         <div class="panel-body">
+
+            <div class="well">
+
+                <div class="input-group">
+                    <input id="erply_queue_filter" name="filter" class="form-control" value="<?=$filter?>">
+                    <span class="input-group-btn">
+                        <button type="button" class="btn btn-primary" onclick="window.location.href='<?=$filter_action?>&filter='+ $('#erply_queue_filter').val(); ">Filter</button>
+                    </span>
+                </div>
+
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-bordered table-hover">
                     <thead>
