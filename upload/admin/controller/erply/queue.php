@@ -133,7 +133,7 @@ class ControllerErplyQueue extends Controller
         $erplyProduct = $this->model_erply_erply->getProduct($erplyProductId);
 
         $product = array();
-        $product['model'] = $erplyProduct->code;
+        $product['model'] = $this->getProductModel($erplyProduct);
         $product['ean'] = $erplyProduct->code2;
         $product['sku'] = $erplyProduct->productID;
         $product['upc'] = '';
@@ -331,5 +331,24 @@ class ControllerErplyQueue extends Controller
             'gr' => 'GRE',
         );
         return $languageCodeMapping;
+    }
+
+    /**
+     * @param $erplyProduct
+     * @return mixed
+     */
+    public function getProductModel($erplyProduct)
+    {
+        if (!empty($erplyProduct->code)) {
+            return strtoupper($erplyProduct->code);
+        }else if(!empty($erplyProduct->brandName)){
+           return !($erplyProduct->brandName) . ' ' . $erplyProduct->productID;
+        }else if(!empty($erplyProduct->seriesName)){
+           return strtoupper($erplyProduct->seriesName) . ' ' . $erplyProduct->productID;
+        }else if(!empty($erplyProduct->categoryName)){
+           return strtoupper($erplyProduct->categoryName) . ' ' . $erplyProduct->productID;
+        }else{
+            return 'PRODUCT '. $erplyProduct->productID;
+        }
     }
 }
