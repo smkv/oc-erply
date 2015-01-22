@@ -14,7 +14,7 @@ class ModelErplyErply extends Model
         $api->invoke('saveProduct' , $data);
     }
 
-    public function getAllProducts()
+    public function getAllProducts($changedSince = 0 , $getStockInfo = 0)
     {
 
         $products = array();
@@ -27,7 +27,9 @@ class ModelErplyErply extends Model
                 'displayedInWebshop' => 1,
                 'active' => 1,
                 'recordsOnPage' => 1000,
-                'pageNo' => $page++
+                'pageNo' => $page++,
+                'getStockInfo' => $getStockInfo,
+                'changedSince' => $changedSince
             ));
             $this->debug("Loaded page $page " . print_r($response->status , true));
             $products = array_merge($products, $response->records);
