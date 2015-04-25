@@ -56,7 +56,7 @@ class ControllerErplySync extends Controller{
 
     private function updateProduct($product)
     {
-        $this->db->query("UPDATE " . DB_PREFIX . "product SET ean = '" . $this->db->escape($product->code3) . "', quantity = '" . (int)$this->getFreeQuantity($product->warehouses) . "', price = '" . (float)$product->price . "', date_modified = NOW() WHERE sku = '" . (int)$product->productID . "'");
+        $this->db->query("UPDATE " . DB_PREFIX . "product SET ean = '" . $this->db->escape($product->code2) . "', quantity = '" . (int)$this->getFreeQuantity($product->warehouses) . "', price = '" . (float)$product->price . "', date_modified = NOW() WHERE sku = '" . (int)$product->productID . "'");
 
     }
 
