@@ -280,7 +280,9 @@ class ControllerErplyQueue extends Controller
 
         $data['productID']= $product['sku'];
         $data['code']= $product['model'];
-        $data['code2']= $product['ean'];
+        if ($product['ean']) {
+            $data['code2'] = $product['ean'];
+        }
 
         $languageCodeMapping = $this->getLanguageMapping();
         $languages = $this->model_localisation_language->getLanguages();
