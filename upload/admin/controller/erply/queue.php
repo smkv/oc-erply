@@ -293,7 +293,7 @@ class ControllerErplyQueue extends Controller
             $productDescription = $productDescriptions[ $lid];
 
             $data["name$l"] = $productDescription['name'];
-            $data["description$l"] = $productDescription['description'];
+            $data["description$l"] = html_entity_decode($productDescription['description']);
         }
 
 
