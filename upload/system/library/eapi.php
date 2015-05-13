@@ -66,7 +66,11 @@ class EAPI
         $error = curl_error($handle);
         $errorNumber = curl_errno($handle);
         curl_close($handle);
-        if($error) throw new Exception('CURL error: '.$response.':'.$error.': '.$errorNumber, self::CURL_ERROR);
+        if($error) {
+//            print_r($parameters);
+//            print_r($response);
+            throw new Exception('CURL error: '.$response.':'.$error.': '.$errorNumber, self::CURL_ERROR);
+        }
 
         $response = json_decode($response);
 

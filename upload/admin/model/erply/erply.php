@@ -21,12 +21,13 @@ class ModelErplyErply extends Model
         $api = $this->getAPI();
         $this->debug("Loading all products from Eply ");
         $page = 1;
+        $recordsOnPage =  $getStockInfo ? 100 : 1000;
         do {
             $this->debug("Loading all products from Eply page nr $page");
             $response = $api->invoke('getProducts', array(
                 'displayedInWebshop' => 1,
                 'active' => 1,
-                'recordsOnPage' => 1000,
+                'recordsOnPage' => $recordsOnPage,
                 'pageNo' => $page++,
                 'getStockInfo' => $getStockInfo,
                 'changedSince' => $changedSince
